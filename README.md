@@ -4,16 +4,16 @@ Automatic translation of Qt .ts files using LLM APIs.
 
 ## Overview
 
-TS-Auto-Translate-LLM is a Python tool that uses Large Language Models (LLMs) to automatically translate Qt linguist (.ts) files. It leverages the capabilities of modern LLMs like GPT and Claude to provide high-quality translations for software localization.
+TS-Auto-Translate-LLM is a Python tool that uses Large Language Models (LLMs) to automatically translate Qt linguist (.ts) files. It leverages the capabilities of modern LLMs like GPT-4.1-mini to provide high-quality translations for software localization to any language.
 
 ## Features
 
-- Translate any Qt .ts file to the target language
-- Supports multiple LLM providers (OpenAI, Anthropic, etc.)
-- Batch translate multiple files at once
-- Configurable via command-line options, environment variables, or config files
-- Progress tracking and detailed logging
+- Universal language support - translate to any language using ISO language codes
+- Uses GPT-4.1-mini by default for high-quality translations
+- Translates all strings in a single batch by default for consistency
+- Supports multiple LLM providers (OpenAI, Anthropic)
 - Preserves .ts file structure and metadata
+- Detailed logging and progress tracking
 
 ## Installation
 
@@ -31,91 +31,76 @@ pip install ts-auto-translate-llm
 
 ## Configuration
 
-You can configure TS-Auto-Translate-LLM in several ways:
-
-### Environment Variables
+Configure TS-Auto-Translate-LLM using environment variables:
 
 ```bash
-# Required for OpenAI
+# Required for OpenAI (default provider)
 export OPENAI_API_KEY=your_api_key
 
-# Required for Anthropic
+# Optional: for using Anthropic
 export ANTHROPIC_API_KEY=your_api_key
-
-# Optional configuration
-export TS_TRANSLATOR_SOURCE_LANG=en_US
-export TS_TRANSLATOR_TARGET_LANG=es_ES
-export TS_TRANSLATOR_LLM_PROVIDER=openai
-export TS_TRANSLATOR_LLM_MODEL=gpt-3.5-turbo
-export TS_TRANSLATOR_BATCH_SIZE=10
-```
-
-### Configuration File
-
-Create a configuration file with the `init` command:
-
-```bash
-ts-translator init --target-lang fr_FR --provider openai --model gpt-4
-```
-
-This will create a configuration file at `~/.ts_translator_config.json` by default, which you can specify when running the tool:
-
-```bash
-ts-translator --config ~/.ts_translator_config.json translate my_file.ts
 ```
 
 ## Usage
 
-### Single File Translation
+The tool expects the English source file to be at `translations/lookpilot_en.ts` and will generate translated files following the pattern `translations/lookpilot_LANG.ts`.
+
+### Basic Usage
 
 ```bash
-# Basic usage
-ts-translator translate path/to/input.ts
+# Use simple language codes
+ts-translator translate ja     # Japanese
+ts-translator translate ko     # Korean
+ts-translator translate ar     # Arabic
+ts-translator translate hi     # Hindi
 
-# Specify output path
-ts-translator translate path/to/input.ts --output path/to/output.ts
-
-# Specify target language
-ts-translator translate path/to/input.ts --target-lang fr_FR
-
-# Specify LLM provider and model
-ts-translator translate path/to/input.ts --provider anthropic --model claude-3-sonnet-20240229
+# Or use full language-region codes
+ts-translator translate pt_BR  # Brazilian Portuguese
+ts-translator translate zh_CN  # Simplified Chinese
+ts-translator translate zh_TW  # Traditional Chinese
+ts-translator translate en_GB  # British English
 ```
 
-### Batch Translation
+### Advanced Options
 
 ```bash
-# Translate all .ts files in a directory
-ts-translator batch path/to/directory
+# Enable debug logging
+ts-translator --debug translate ja
 
-# Translate recursively
-ts-translator batch path/to/directory --recursive
+# Use a different LLM provider
+ts-translator translate ko --provider anthropic
 
-# Save to a different output directory
-ts-translator batch path/to/directory --output-dir path/to/output/directory
+# Use a specific model
+ts-translator translate ar --model claude-3-sonnet-20240229
+
+# Use multi-batch mode instead of single batch (for memory-constrained environments)
+ts-translator translate hi --multi-batch
+
+# Use multi-batch mode with custom batch size
+ts-translator translate zh_CN --multi-batch --batch-size 20
 ```
 
-## Example .ts File Format
+### Language Support
 
-The tool handles the standard Qt .ts file format. For example:
+The tool supports translation to any language using standard language codes:
+- Simple codes: `de`, `fr`, `ja`, `ko`, `zh`, etc.
+- Full codes: `de_DE`, `fr_FR`, `pt_BR`, `zh_CN`, etc.
 
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="en_US">
-  <context>
-    <name>AboutTab</name>
-    <message>
-      <location filename="../src/clearsight/ui/main_menu/about_tab.py" line="26" />
-      <source>About LookPilot</source>
-      <comment>Title of the About section</comment>
-      <translation type="unfinished" />
-    </message>
-    <!-- More messages -->
-  </context>
-  <!-- More contexts -->
-</TS>
-```
+The LLM will automatically adapt to the target language's:
+- Writing system and character set
+- Grammar rules and sentence structure
+- Formality levels and honorifics
+- Technical terminology conventions
+
+## Translation Features
+
+- Intelligent adaptation to target language characteristics
+- Preserves formatting and special characters
+- Maintains consistent terminology
+- Handles technical terms appropriately
+- Ensures proper character encoding
+- Validates translations for completeness and correctness
+- Respects language-specific formatting conventions
 
 ## Contributing
 

@@ -25,64 +25,21 @@ The application has a modern GUI with multiple tabs/sections including:
 - User feedback and bug reporting
 """
 
-# Language-specific context that can be added for particular target languages
-LANGUAGE_SPECIFIC_CONTEXT = {
-    "de_DE": """
-    German translation should use formal 'Sie' form for user instructions and messages.
-    Technical terms should use standard German computing/software terminology.
-    Maintain consistent capitalization for nouns as per German grammar rules.
-    """,
-    "es_ES": """
-    Spanish translation should use neutral Latin American Spanish.
-    Use formal 'usted' form for user instructions and messages.
-    Technical terms should be consistently translated across the interface.
-    """,
-    "fr_FR": """
-    French translation should use formal 'vous' form for user instructions and messages.
-    Follow French punctuation rules (spaces before/after punctuation marks).
-    Use standard French computing terminology for technical terms.
-    """,
-    "cs_CZ": """
-    Czech translation should use formal 'vy' form for user instructions and messages.
-    Use standard Czech computing terminology.
-    Maintain proper Czech diacritics and character encoding.
-    Follow Czech capitalization rules (only first word of sentence and proper nouns).
-    """
-}
-
 # Translation quality guidelines that are added to every translation prompt
 TRANSLATION_GUIDELINES = """
 - Maintain consistent terminology throughout the interface
 - Preserve any technical terms or proper nouns
 - Keep the same level of formality as the source text
 - Ensure translations fit the UI context (length, formatting)
-- Preserve any placeholders or special characters
+- Preserve any placeholders and special characters
 - Maintain the same tone and style as the original
+- Adapt to the target language's writing system and character set
+- Follow the target language's grammar rules and sentence structure
+- Use appropriate formality levels and honorifics for the target language
+- Apply standard technical terminology conventions for the target language
+- Respect the target language's punctuation and formatting rules
+- Ensure proper character encoding and rendering
 """
-
-# Special terms that should be consistently translated
-GLOSSARY = {
-    "de_DE": {
-        "eye tracking": "Eye-Tracking",
-        "head tracking": "Head-Tracking",
-        "calibration": "Kalibrierung",
-        "gaze estimation": "Blickerfassung",
-        "virtual camera": "virtuelle Kamera",
-        "settings": "Einstellungen",
-        "feedback": "Feedback",
-        "bug report": "Fehlerbericht"
-    },
-    "cs_CZ": {
-        "eye tracking": "sledování očí",
-        "head tracking": "sledování hlavy",
-        "calibration": "kalibrace",
-        "gaze estimation": "odhad pohledu",
-        "virtual camera": "virtuální kamera",
-        "settings": "nastavení",
-        "feedback": "zpětná vazba",
-        "bug report": "hlášení chyb"
-    }
-}
 
 # Maximum length for translations (characters) to prevent UI overflow
 MAX_TRANSLATION_LENGTH = 300

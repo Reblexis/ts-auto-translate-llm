@@ -8,10 +8,12 @@ import logging
 from pathlib import Path
 from typing import List, Optional
 import click
+import re
 
 from ts_translator.config import TranslatorConfig, setup_logging
 from ts_translator.translator import TSTranslator
 from ts_translator.llm_client import get_llm_client
+from ts_translator.constants import BASE_TRANSLATION_FILE, TRANSLATION_OUTPUT_PATTERN
 
 logger = logging.getLogger(__name__)
 
@@ -44,54 +46,68 @@ def cli(ctx, debug: bool, config: Optional[str]):
 
 
 @cli.command()
-@click.argument("input_path", type=click.Path(exists=True))
-@click.option("--output", "-o", help="Output path (default: input path with suffix)")
-@click.option("--target-lang", "-t", help="Target language code")
-@click.option("--source-lang", "-s", help="Source language code")
+@click.argument("lang_code")
 @click.option("--provider", "-p", help="LLM provider to use")
 @click.option("--model", "-m", help="LLM model to use")
-@click.option("--batch-size", "-b", type=int, help="Batch size for translations")
+@click.option("--batch-size", "-b", type=int, help="Batch size for multi-batch mode")
+@click.option("--multi-batch", is_flag=True, help="Use multiple smaller batches instead of single large batch")
 @click.pass_context
 def translate(
     ctx, 
-    input_path: str, 
-    output: Optional[str] = None,
-    target_lang: Optional[str] = None,
-    source_lang: Optional[str] = None,
+    lang_code: str,
     provider: Optional[str] = None,
     model: Optional[str] = None,
-    batch_size: Optional[int] = None
+    batch_size: Optional[int] = None,
+    multi_batch: bool = False
 ):
-    """Translate a .ts file to the target language."""
+    """Translate the base English file to the specified language code (e.g. 'de' or 'de_DE')."""
     logger.info("Starting translation command")
     config: TranslatorConfig = ctx.obj["config"]
     
+    # Validate base translation file exists
+    if not os.path.exists(BASE_TRANSLATION_FILE):
+        logger.error(f"Base translation file not found: {BASE_TRANSLATION_FILE}")
+        raise click.FileError(BASE_TRANSLATION_FILE, hint="Base English translation file not found")
+    
+    # Process language code
+    target_lang = lang_code.lower()
+    if "_" not in target_lang:
+        # Convert 'de' to 'de_DE' format
+        target_lang = f"{target_lang}_{target_lang.upper()}"
+    
+    # Generate output path
+    output = TRANSLATION_OUTPUT_PATTERN.format(lang=lang_code.lower())
+    
     # Update config with command-line options
-    update_dict = {}
-    if target_lang:
-        update_dict["target_lang"] = target_lang
-    if source_lang:
-        update_dict["source_lang"] = source_lang
+    update_dict = {
+        "source_lang": "en_US",  # Always English source
+        "target_lang": target_lang
+    }
+    
     if provider:
         update_dict["llm_provider"] = provider
     if model:
         update_dict["llm_model"] = model
-    if batch_size:
-        update_dict["batch_size"] = batch_size
     
-    if update_dict:
-        logger.info("Updating configuration with command-line options")
-        logger.debug(f"Updates: {update_dict}")
-        config = config.update(**update_dict)
+    # Handle batch size configuration
+    if multi_batch:
+        logger.info("Multi-batch mode enabled")
+        if batch_size:
+            update_dict["batch_size"] = batch_size
+            logger.info(f"Using specified batch size: {batch_size}")
+        else:
+            update_dict["batch_size"] = 10  # Default small batch size
+            logger.info("Using default small batch size: 10")
+    else:
+        # Use single large batch (default behavior)
+        update_dict["batch_size"] = DEFAULT_BATCH_SIZE
+        logger.info("Using single batch mode (default)")
     
-    # Determine output path
-    if not output:
-        input_path_obj = Path(input_path)
-        stem = input_path_obj.stem
-        suffix = input_path_obj.suffix
-        output = str(input_path_obj.with_name(f"{stem}{config.output_suffix}{suffix}"))
+    logger.info("Updating configuration with command-line options")
+    logger.debug(f"Updates: {update_dict}")
+    config = config.update(**update_dict)
     
-    logger.info(f"Input file: {input_path}")
+    logger.info(f"Input file: {BASE_TRANSLATION_FILE}")
     logger.info(f"Output file: {output}")
     logger.info(f"Source language: {config.source_lang}")
     logger.info(f"Target language: {config.target_lang}")
@@ -117,9 +133,12 @@ def translate(
         max_retries=config.max_retries
     )
     
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output), exist_ok=True)
+    
     # Translate file
     logger.info("Starting translation process")
-    results = translator.translate_file(input_path, output)
+    results = translator.translate_file(BASE_TRANSLATION_FILE, output)
     
     # Print results
     logger.info("Translation completed")

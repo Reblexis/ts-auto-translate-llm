@@ -297,7 +297,7 @@ def get_llm_client(provider: str = "openai", model_name: Optional[str] = None, t
     # Set default model names based on provider
     if model_name is None:
         if provider == "openai":
-            model_name = "gpt-3.5-turbo"
+            model_name = "gpt-4.1-mini"
         elif provider == "anthropic":
             model_name = "claude-3-haiku-20240307"
         else:

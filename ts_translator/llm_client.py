@@ -15,9 +15,7 @@ from langchain_anthropic import ChatAnthropic
 
 from ts_translator.constants import (
     GENERAL_TRANSLATION_CONTEXT,
-    LANGUAGE_SPECIFIC_CONTEXT,
-    TRANSLATION_GUIDELINES,
-    GLOSSARY
+    TRANSLATION_GUIDELINES
 )
 
 logger = logging.getLogger(__name__)
@@ -115,7 +113,7 @@ class LangChainLLMClient(BaseLLMClient):
         if context:
             logger.debug(f"Context: {context}")
             
-        # Build system prompt with general and language-specific context
+        # Build system prompt with general context
         system_prompt = f"""You are a professional translator with expertise in software localization.
 Translate the given text from {source_lang} to {target_lang}.
 
@@ -123,18 +121,10 @@ Application Context:
 {GENERAL_TRANSLATION_CONTEXT}
 
 Translation Guidelines:
-{TRANSLATION_GUIDELINES}"""
+{TRANSLATION_GUIDELINES}
 
-        # Add language-specific context if available
-        if target_lang in LANGUAGE_SPECIFIC_CONTEXT:
-            system_prompt += f"\n\nLanguage-Specific Guidelines:\n{LANGUAGE_SPECIFIC_CONTEXT[target_lang]}"
-
-        # Add glossary if available
-        if target_lang in GLOSSARY:
-            glossary_terms = "\n".join([f"- {k}: {v}" for k, v in GLOSSARY[target_lang].items()])
-            system_prompt += f"\n\nGlossary of Key Terms:\n{glossary_terms}"
-
-        system_prompt += "\n\nPreserve any formatting and special characters.\nDo not add any explanations or notes - only return the translated text."
+Preserve any formatting and special characters.
+Do not add any explanations or notes - only return the translated text."""
 
         human_content = f"Text to translate: {text}"
         if context:
@@ -171,7 +161,7 @@ Translation Guidelines:
         logger.info(f"Source language: {source_lang}")
         logger.info(f"Target language: {target_lang}")
         
-        # Build system prompt with general and language-specific context
+        # Build system prompt with general context
         system_prompt = f"""You are a professional translator with expertise in software localization.
 Translate the following texts from {source_lang} to {target_lang}.
 
@@ -179,18 +169,10 @@ Application Context:
 {GENERAL_TRANSLATION_CONTEXT}
 
 Translation Guidelines:
-{TRANSLATION_GUIDELINES}"""
+{TRANSLATION_GUIDELINES}
 
-        # Add language-specific context if available
-        if target_lang in LANGUAGE_SPECIFIC_CONTEXT:
-            system_prompt += f"\n\nLanguage-Specific Guidelines:\n{LANGUAGE_SPECIFIC_CONTEXT[target_lang]}"
-
-        # Add glossary if available
-        if target_lang in GLOSSARY:
-            glossary_terms = "\n".join([f"- {k}: {v}" for k, v in GLOSSARY[target_lang].items()])
-            system_prompt += f"\n\nGlossary of Key Terms:\n{glossary_terms}"
-
-        system_prompt += "\n\nFor each text, provide only the translation without explanations.\nPreserve any formatting and special characters."
+For each text, provide only the translation without explanations.
+Preserve any formatting and special characters."""
 
         human_content = "Texts to translate:\n\n"
         for i, item in enumerate(texts, 1):

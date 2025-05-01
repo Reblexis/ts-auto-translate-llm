@@ -13,7 +13,11 @@ import re
 from ts_translator.config import TranslatorConfig, setup_logging
 from ts_translator.translator import TSTranslator
 from ts_translator.llm_client import get_llm_client
-from ts_translator.constants import BASE_TRANSLATION_FILE, TRANSLATION_OUTPUT_PATTERN
+from ts_translator.constants import (
+    BASE_TRANSLATION_FILE,
+    TRANSLATION_OUTPUT_PATTERN,
+    DEFAULT_BATCH_SIZE
+)
 
 logger = logging.getLogger(__name__)
 

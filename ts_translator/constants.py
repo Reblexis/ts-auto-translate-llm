@@ -12,7 +12,7 @@ GENERAL_TRANSLATION_CONTEXT = """
 This is a desktop application called LookPilot that provides eye and head tracking functionality.
 It is a professional software tool used for:
 - Camera control and configuration
-- Eye tracking and gaze estimation
+- Eye tracking and gaze estimation (estimates where the user is looking on the screen)
 - Head tracking for gaming and accessibility
 - User interface customization and settings
 - System feedback and diagnostics

@@ -24,9 +24,6 @@ cd ts-auto-translate-llm
 
 # Install the package
 pip install -e .
-
-# Or install directly from PyPI
-pip install ts-auto-translate-llm
 ```
 
 ## Configuration

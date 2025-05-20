@@ -49,30 +49,27 @@ def cli(ctx, debug: bool, config: Optional[str]):
     logger.debug(f"Configuration loaded: {translator_config.to_dict()}")
 
 
-@cli.command()
-@click.argument("lang_code")
-@click.option("--provider", "-p", help="LLM provider to use")
-@click.option("--model", "-m", help="LLM model to use")
-@click.option("--batch-size", "-b", type=int, help="Batch size for multi-batch mode")
-@click.option("--multi-batch", is_flag=True, help="Use multiple smaller batches instead of single large batch")
-@click.pass_context
-def translate(
-    ctx, 
+def process_single_translation(
+    config: TranslatorConfig,
     lang_code: str,
-    provider: Optional[str] = None,
-    model: Optional[str] = None,
-    batch_size: Optional[int] = None,
-    multi_batch: bool = False
-):
-    """Translate the base English file to the specified language code (e.g. 'de' or 'de_DE')."""
-    logger.info("Starting translation command")
-    config: TranslatorConfig = ctx.obj["config"]
+    provider: Optional[str],
+    model: Optional[str],
+    batch_size: Optional[int],
+    multi_batch: bool
+) -> bool:
+    """Process translation for a single language.
     
-    # Validate base translation file exists
-    if not os.path.exists(BASE_TRANSLATION_FILE):
-        logger.error(f"Base translation file not found: {BASE_TRANSLATION_FILE}")
-        raise click.FileError(BASE_TRANSLATION_FILE, hint="Base English translation file not found")
-    
+    Args:
+        config: Translator configuration
+        lang_code: Target language code
+        provider: LLM provider
+        model: LLM model
+        batch_size: Batch size for translation
+        multi_batch: Whether to use multi-batch mode
+        
+    Returns:
+        True if successful, False if there were errors
+    """
     # Process language code
     target_lang = lang_code.lower()
     if "_" not in target_lang:
@@ -152,16 +149,72 @@ def translate(
     logger.info(f"Errors: {results['errors']}")
     logger.info(f"Output saved to: {output}")
     
-    if results['errors'] > 0:
-        logger.error(f"Translation completed with {results['errors']} errors")
-        sys.exit(1)
-    
-    click.echo(f"Translation completed successfully!")
+    click.echo(f"\nTranslation to {lang_code} completed!")
     click.echo(f"Total units: {results['total_units']}")
     click.echo(f"Translated: {results['translated']}")
     click.echo(f"Skipped: {results['skipped']}")
     click.echo(f"Errors: {results['errors']}")
     click.echo(f"Output saved to: {output}")
+    
+    return results['errors'] == 0
+
+
+@cli.command()
+@click.argument("lang_codes")
+@click.option("--provider", "-p", help="LLM provider to use")
+@click.option("--model", "-m", help="LLM model to use")
+@click.option("--batch-size", "-b", type=int, help="Batch size for multi-batch mode")
+@click.option("--multi-batch", is_flag=True, help="Use multiple smaller batches instead of single large batch")
+@click.pass_context
+def translate(
+    ctx, 
+    lang_codes: str,
+    provider: Optional[str] = None,
+    model: Optional[str] = None,
+    batch_size: Optional[int] = None,
+    multi_batch: bool = False
+):
+    """Translate the base English file to one or more languages (comma-separated codes, e.g. 'de,fr,cs' or 'de_DE,fr_FR')."""
+    logger.info("Starting translation command")
+    config: TranslatorConfig = ctx.obj["config"]
+    
+    # Validate base translation file exists
+    if not os.path.exists(BASE_TRANSLATION_FILE):
+        logger.error(f"Base translation file not found: {BASE_TRANSLATION_FILE}")
+        raise click.FileError(BASE_TRANSLATION_FILE, hint="Base English translation file not found")
+    
+    # Split language codes
+    languages = [lang.strip() for lang in lang_codes.split(",") if lang.strip()]
+    if not languages:
+        logger.error("No valid language codes provided")
+        raise click.UsageError("Please provide at least one language code")
+    
+    logger.info(f"Processing translations for languages: {', '.join(languages)}")
+    
+    # Track overall success
+    all_successful = True
+    
+    # Process each language
+    for lang_code in languages:
+        click.echo(f"\nTranslating to {lang_code}...")
+        success = process_single_translation(
+            config=config,
+            lang_code=lang_code,
+            provider=provider,
+            model=model,
+            batch_size=batch_size,
+            multi_batch=multi_batch
+        )
+        if not success:
+            all_successful = False
+    
+    # Final summary
+    click.echo("\nTranslation Summary:")
+    click.echo(f"Processed {len(languages)} languages: {', '.join(languages)}")
+    
+    if not all_successful:
+        logger.error("Some translations had errors")
+        sys.exit(1)
 
 
 @cli.command()

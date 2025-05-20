@@ -78,7 +78,11 @@ ts-translator translate hi --multi-batch
 
 # Use multi-batch mode with custom batch size
 ts-translator translate zh_CN --multi-batch --batch-size 20
+
+# Translate multiple languages at once
+ts-translator translate ar,cs,de,es,fr,hi,it,ja,ko,pl,pt_br,ru,tr,ukr,zh_cn
 ```
+
 
 ### Language Support
 

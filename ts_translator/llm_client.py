@@ -81,10 +81,21 @@ class LangChainLLMClient(BaseLLMClient):
         """
         if self.provider == "openai":
             logger.info("Setting up OpenAI chat model")
-            return ChatOpenAI(
-                model_name=self.model_name,
-                temperature=self.temperature,
-            )
+            # Some models (e.g., gpt-5-mini) only support the default temperature of 1.0.
+            # For those, we avoid passing a custom temperature to prevent API errors.
+            kwargs: dict = {"model_name": self.model_name}
+            model_requires_default_temp = self.model_name.startswith("gpt-5-mini")
+            if not model_requires_default_temp:
+                kwargs["temperature"] = self.temperature
+            else:
+                if self.temperature != 1.0:
+                    logger.warning(
+                        "Model %s only supports the default temperature (1.0). "
+                        "Ignoring configured temperature=%s.",
+                        self.model_name,
+                        self.temperature,
+                    )
+            return ChatOpenAI(**kwargs)
             
         elif self.provider == "anthropic":
             logger.info("Setting up Anthropic chat model")

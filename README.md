@@ -4,12 +4,12 @@ Automatic translation of Qt .ts files using LLM APIs.
 
 ## Overview
 
-TS-Auto-Translate-LLM is a Python tool that uses Large Language Models (LLMs) to automatically translate Qt linguist (.ts) files. It leverages the capabilities of modern LLMs like GPT-4.1-mini to provide high-quality translations for software localization to any language.
+TS-Auto-Translate-LLM is a Python tool that uses Large Language Models (LLMs) to automatically translate Qt linguist (.ts) files. It leverages the capabilities of modern LLMs like GPT-5-mini to provide high-quality translations for software localization to any language.
 
 ## Features
 
 - Universal language support - translate to any language using ISO language codes
-- Uses GPT-4.1-mini by default for high-quality translations
+- Uses GPT-5-mini by default for high-quality translations
 - Translates all strings in a single batch by default for consistency
 - Supports multiple LLM providers (OpenAI, Anthropic)
 - Preserves .ts file structure and metadata
@@ -46,7 +46,7 @@ The tool expects the English source file to be at `translations/lookpilot_en.ts`
 
 ```bash
 # Use simple language codes
-ts-translator translate ja     # Japanese
+ts-translator translate cs     # Czech
 ts-translator translate ko     # Korean
 ts-translator translate ar     # Arabic
 ts-translator translate hi     # Hindi

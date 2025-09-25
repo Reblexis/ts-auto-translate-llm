@@ -1,10 +1,10 @@
-# QT Auto Translator
+# Qt Auto Translator
 
 Automatic translation of Qt .ts files using LLM APIs.
 
 ## Overview
 
-TS-Auto-Translate-LLM is a Python tool that uses Large Language Models (LLMs) to automatically translate Qt linguist (.ts) files. It leverages the capabilities of modern LLMs like GPT-5-mini to provide high-quality translations for software localization to any language.
+Qt Auto Translator is a Python tool that uses Large Language Models (LLMs) to automatically translate Qt linguist (.ts) files. It leverages the capabilities of modern LLMs like GPT-5-mini to provide high-quality translations for software localization to any language.
 
 ## Features
 

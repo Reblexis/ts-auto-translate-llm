@@ -1,4 +1,4 @@
-# QT AUTO TRANSLATOR
+# QT Auto Translator
 
 Automatic translation of Qt .ts files using LLM APIs.
 
